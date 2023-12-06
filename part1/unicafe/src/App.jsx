@@ -3,6 +3,8 @@ import { useState } from 'react'
 const Button = (props) => <button onClick={props.handleClick}>{props.name}</button>
 const Statistic = (props) => <p>{props.name} : {props.value}</p>
 const Statistics = ({ good, neutral, bad, calcAll, calcAvg, calcPositive}) => {
+
+if (calcAll())
   return (
   <div>
     <h2>statistics</h2>
@@ -15,6 +17,13 @@ const Statistics = ({ good, neutral, bad, calcAll, calcAvg, calcPositive}) => {
       <Statistic value={calcPositive()} name='positive' />
   </div>
   )
+
+  return (
+    <div>
+      <h2>statistics</h2>
+      <p>No feedback Given</p>
+    </div>
+  ) 
 }
 
 const App = () => {
