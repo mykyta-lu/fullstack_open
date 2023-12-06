@@ -2,6 +2,20 @@ import { useState } from 'react'
 
 const Button = (props) => <button onClick={props.handleClick}>{props.name}</button>
 const Statistic = (props) => <p>{props.name} : {props.value}</p>
+const Statistics = ({ good, neutral, bad, calcAll, calcAvg, calcPositive}) => {
+  return (
+  <div>
+    <h2>statistics</h2>
+      <Statistic value={good} name='good' />
+      <Statistic value={neutral} name='neutral' />
+      <Statistic value={bad} name='bad' />
+
+      <Statistic value={calcAll()} name='all' />
+      <Statistic value={calcAvg()} name='average' />
+      <Statistic value={calcPositive()} name='positive' />
+  </div>
+  )
+}
 
 const App = () => {
   // save clicks of each button to its own state
@@ -27,14 +41,14 @@ const App = () => {
       <Button handleClick={handleNeutralClick} name='neutrla'/>
       <Button handleClick={handleBadClick} name='bad'/>
 
-      <h2>statistics</h2>
-      <Statistic value={good} name='good' />
-      <Statistic value={neutral} name='neutral' />
-      <Statistic value={bad} name='bad' />
-
-      <Statistic value={calcAll()} name='all' />
-      <Statistic value={calcAvg()} name='average' />
-      <Statistic value={calcPositive()} name='positive' />
+      <Statistics good = {good}
+      neutral = {neutral}
+      bad = {bad}
+      calcAll = {calcAll}
+      calcAvg = {calcAvg}
+      calcPositive = {calcPositive}
+      />
+      
     </div>
   )
 }
