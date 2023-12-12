@@ -1,7 +1,47 @@
 import { useState } from 'react'
 
 const DisplayPerson = ({persons}) => {
-  return persons.map(person => <li key={person.name}>{person.name} {person.number}</li>)
+  return (<>
+    <h2>Numbers</h2>
+      <ul>
+        {persons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
+      </ul>
+  </>)
+}
+
+const DisplayAddNew = ({addNumber, newName, setNewName, newNumber, setNewNumber}) => {
+  return (<>
+    <h2>Add new</h2>
+    <form onSubmit={addNumber}>
+      <div>
+        name: <input
+          value={newName}
+          onChange={(event) => setNewName(event.target.value)}
+        />
+      </div>
+      <div>
+        number: <input type='tel'
+          value={newNumber}
+          onChange={(event) => setNewNumber(event.target.value)}  
+        />
+      </div>
+      <div>
+        <button type = "submit">add</button>  
+      </div>  
+    </form>  
+  </>)
+}
+
+const DislpayFilter = ({newFilter, setFilter}) => {
+  return (
+  <>
+    <h2>Phonebook</h2>
+      <input 
+        value={newFilter}
+        onChange={(event) => setFilter(event.target.value)}
+      />
+  </>
+  )
 }
 
 const App = () => {
@@ -35,33 +75,9 @@ const App = () => {
 
 return (
   <div>
-    <h2>Phonebook</h2>
-      <input 
-        value={newFilter}
-        onChange={(event) => setFilter(event.target.value)}
-      />
-    <h2>Add new</h2>
-    <form onSubmit={addNumber}>
-      <div>
-        name: <input
-          value={newName}
-          onChange={(event) => setNewName(event.target.value)}
-        />
-      </div>
-      <div>
-        number: <input type='tel'
-          value={newNumber}
-          onChange={(event) => setNewNumber(event.target.value)}  
-        />
-      </div>
-      <div>
-        <button type = "submit">add</button>  
-      </div>  
-    </form>  
-    <h2>Numbers</h2>
-    <ul>
-      <DisplayPerson persons={persons.filter(person => person.name.toLowerCase().includes(newFilter))} />
-    </ul>
+    <DislpayFilter newFilter={newFilter} setFilter={setFilter} />
+    <DisplayAddNew addNumber={addNumber} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}/>
+    <DisplayPerson persons={persons.filter(person => person.name.toLowerCase().includes(newFilter))} />
   </div>
 )}
 
