@@ -71,8 +71,9 @@ const App = () => {
       alert(`${newName} is already in phonebook`)
       return setNewName(newName)
     }
-
-    setPersons(persons.concat(numberObj))
+    axios
+      .post('http://localhost:3001/persons', numberObj)
+      .then(response => setPersons(persons.concat(response.data)))
     setNewName('')
     setNewNumber('')
   }
