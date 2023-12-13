@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import phoneService from './services/phones'
 
-const DisplayPerson = ({persons}) => {
+const DisplayPerson = ({persons, triggerDelete}) => {
   return (<>
     <h2>Numbers</h2>
       <ul>
-        {persons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
+        {persons.map(person => <li key={person.name}>{person.name} {person.number} <button onClick={() => triggerDelete(person.id)}>delete</button></li>)}
       </ul>
   </>)
 }
@@ -52,10 +53,8 @@ const App = () => {
   const [newFilter, setFilter] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    phoneService.getAll().then(initialPersones => {
+        setPersons(initialPersones)
       })
   },[])
 
@@ -65,24 +64,41 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-
-    if (persons.filter(person => person.name === newName).length) {
-      console.log(persons.filter(person => person.name === newName))
-      alert(`${newName} is already in phonebook`)
+    const newPerson = persons.filter(person => person.name === newName)
+    const id = newPerson[0].id
+    if (newPerson.length) {
+      if (window.confirm('a person is already in phone book. Do you want to change a number?')) {
+        phoneService
+          .update(id, numberObj)
+          .then(updatedPerson => {
+            setPersons(persons.map(person =>
+              person.id !== id ? person : updatedPerson))
+          })
+      }
       return setNewName(newName)
     }
-    axios
-      .post('http://localhost:3001/persons', numberObj)
-      .then(response => setPersons(persons.concat(response.data)))
+
+    phoneService.create(numberObj).then(returnedPerson => {
+      setPersons(persons.concat(returnedPerson))
+    })
     setNewName('')
     setNewNumber('')
+  }
+
+  const triggerDelete = id => {
+    if (window.confirm("Do you really want to delete?")) {
+      phoneService
+      .deletePerson(id)
+      .then(() => 
+        setPersons(persons.filter(person => person.id !== id)))
+    }
   }
 
 return (
   <div>
     <DislpayFilter newFilter={newFilter} setFilter={setFilter} />
     <DisplayAddNew addNumber={addNumber} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}/>
-    <DisplayPerson persons={persons.filter(person => person.name.toLowerCase().includes(newFilter))} />
+    <DisplayPerson triggerDelete={triggerDelete} persons={persons.filter(person => person ? person : person.name.toLowerCase().includes(newFilter))} />
   </div>
 )}
 
