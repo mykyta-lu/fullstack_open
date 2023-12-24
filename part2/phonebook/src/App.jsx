@@ -46,7 +46,7 @@ const DislpayFilter = ({newFilter, setFilter}) => {
   )
 }
 
-const DisplayNotification = ({message}) => {
+const DisplayNotification = ({message, type}) => {
   if (message == '') {
     return <div></div>
   }
@@ -61,11 +61,29 @@ const DisplayNotification = ({message}) => {
     marginBottom: 10
   }
 
-  return (
-   <div style={notificationStyle} className='notification'>
-      {message}
-   </div>
-  )
+  const errorStyle = {
+    color: 'red',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+  if (type == 'success') {
+    return (
+      <div style={notificationStyle} className='notification'>
+         {message}
+      </div>
+     )
+  } else if (type == 'error') {
+    return (
+      <div style={errorStyle} className='error'>
+         {message}
+      </div>
+     )
+  }
+  
 }
 
 const App = () => {
@@ -74,6 +92,12 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setFilter] = useState('')
   const [notificationMessage, setNotificationMessage] = useState('')
+  const [notificationType, setNotificationType] = useState('')
+
+  const notificationTypes = {
+    error : 'error',
+    success: 'success'
+  }
 
   // get all persons from json file on the server and update person list 
   useEffect(() => {
@@ -103,6 +127,7 @@ const App = () => {
 
             //show message if update succesfull    
             setNotificationMessage(`Updated ${updatedPerson.name}`)
+            setNotificationType(notificationTypes.success)
             setTimeout(() => {
               setNotificationMessage('')
             }, 5000)
@@ -117,6 +142,7 @@ const App = () => {
 
        //show message if delete succesfull    
        setNotificationMessage(`Added ${returnedPerson.name}`)
+       setNotificationType(notificationTypes.success)
        setTimeout(() => {
          setNotificationMessage('')
        }, 5000)
@@ -136,16 +162,21 @@ const App = () => {
 
          //show message if delete succesfull    
         setNotificationMessage(`Deleted ${deletedPerson}`)
+        setNotificationType(notificationTypes.success)
         setTimeout(() => {
           setNotificationMessage('')
         }, 5000)
+      })
+      .catch(error => {
+        setNotificationMessage(`Information of ${deletedPerson} has already been removed from the server.`)
+        setNotificationType(notificationTypes.error)
       })
     }
   }
 
 return (
   <div>
-    <DisplayNotification message={notificationMessage} />
+    <DisplayNotification message={notificationMessage} type={notificationType}/>
     <DislpayFilter newFilter={newFilter} setFilter={setFilter} />
     <DisplayAddNew addNumber={addNumber} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}/>
     <DisplayPerson triggerDelete={triggerDelete} persons={persons.filter(person => person ? person : person.name.toLowerCase().includes(newFilter))} />
