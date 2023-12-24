@@ -46,12 +46,36 @@ const DislpayFilter = ({newFilter, setFilter}) => {
   )
 }
 
+const DisplayNotification = ({message}) => {
+  if (message == '') {
+    return <div></div>
+  }
+
+  const notificationStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+
+  return (
+   <div style={notificationStyle} className='notification'>
+      {message}
+   </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState('')
 
+  // get all persons from json file on the server and update person list 
   useEffect(() => {
     phoneService.getAll().then(initialPersones => {
         setPersons(initialPersones)
@@ -60,42 +84,68 @@ const App = () => {
 
   const addNumber = (event) => {
     event.preventDefault()
+
+    // new number object
     const numberObj = {
       name: newName,
       number: newNumber
     }
     const newPerson = persons.filter(person => person.name === newName)
-    const id = newPerson[0].id
+    // check if persons array has a person with entered name
     if (newPerson.length) {
       if (window.confirm('a person is already in phone book. Do you want to change a number?')) {
+        const id = newPerson[0].id
         phoneService
           .update(id, numberObj)
           .then(updatedPerson => {
             setPersons(persons.map(person =>
               person.id !== id ? person : updatedPerson))
+
+            //show message if update succesfull    
+            setNotificationMessage(`Updated ${updatedPerson.name}`)
+            setTimeout(() => {
+              setNotificationMessage('')
+            }, 5000)
           })
       }
       return setNewName(newName)
     }
 
+    // default behavior: add a new person to the phonebook
     phoneService.create(numberObj).then(returnedPerson => {
       setPersons(persons.concat(returnedPerson))
+
+       //show message if delete succesfull    
+       setNotificationMessage(`Added ${returnedPerson.name}`)
+       setTimeout(() => {
+         setNotificationMessage('')
+       }, 5000)
     })
     setNewName('')
     setNewNumber('')
   }
 
+  // delete person from the phonebook
   const triggerDelete = id => {
     if (window.confirm("Do you really want to delete?")) {
+      const deletedPerson = persons[id-1].name
       phoneService
       .deletePerson(id)
-      .then(() => 
-        setPersons(persons.filter(person => person.id !== id)))
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== id))
+
+         //show message if delete succesfull    
+        setNotificationMessage(`Deleted ${deletedPerson}`)
+        setTimeout(() => {
+          setNotificationMessage('')
+        }, 5000)
+      })
     }
   }
 
 return (
   <div>
+    <DisplayNotification message={notificationMessage} />
     <DislpayFilter newFilter={newFilter} setFilter={setFilter} />
     <DisplayAddNew addNumber={addNumber} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}/>
     <DisplayPerson triggerDelete={triggerDelete} persons={persons.filter(person => person ? person : person.name.toLowerCase().includes(newFilter))} />
